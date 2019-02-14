@@ -7,6 +7,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.servlet.ServletException;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,10 +38,9 @@ public class DocsRenderer implements Serializable {
         if (request.hasParameter("theme")) {
             final String themeName = request.getParameter("theme")+".css";
             String themeBasePath = docsPath.getAbsolutePath();
-            String themePath = new StringBuilder(themeBasePath.substring(0, themeBasePath.lastIndexOf("/") + 1))
-                .append("themes/").append(themeName).toString();
-            
-            String themeContent = new String(Files.readAllBytes(Paths.get(themePath)),"UTF-8");
+            final Path themePath =
+                Paths.get(themeBasePath).getParent().resolve("themes").resolve(themeName);
+            String themeContent = new String(Files.readAllBytes(themePath),"UTF-8");
             String html = new String(Files.readAllBytes(docsPath.toPath()),"UTF-8");
             Document doc = Jsoup.parse(html, "UTF-8");
             Elements head = doc.getElementsByTag("head");
